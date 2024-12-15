@@ -5,16 +5,30 @@ use std::os::unix::net::UnixStream;
 use std::thread;
 
 // constants
-use light_control_app::common::constants::{SWITCH_ON, SWITCH_OFF, SOCKET_PATH, LIGHT_CONTROL_PATH};
+use light_control_app::common::constants::{SWITCH_ON, SWITCH_OFF, SOCKET_PATH, LIGHT_CONTROL_PATH, SENSOR_CONTROL_PATH};
+
+// 定数配列としてプロセスのパスを管理
+const PROCESS_PATHS: [&str; 2] = [SENSOR_CONTROL_PATH, LIGHT_CONTROL_PATH];
 
 fn main() {
     // 新しいプロセスとして light_control を起動
-    let mut child = Command::new(LIGHT_CONTROL_PATH)
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .spawn()
-        .expect("Failed to start light_control process");
+    let mut child_processes = Vec::new();
 
+    // 定数配列を使ってプロセスを順番に起動
+    for &process_path in PROCESS_PATHS.iter() {
+        println!("Starting process: {}", process_path);
+
+        // プロセスを起動
+        let child = Command::new(process_path)
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .spawn()
+            .expect("Failed to start process");
+
+        // 起動したプロセスをchild_processesベクタに格納
+        child_processes.push(child);
+    }
+    
     // メインスレッドでユーザー入力を待つ
     let handle = thread::spawn(move || {
         let mut input = String::new();
@@ -45,7 +59,14 @@ fn main() {
     // ユーザー入力スレッドが終了するのを待つ
     handle.join().unwrap();
 
-    // プロセスを停止する
-    child.kill().expect("Failed to kill light_control process");
-    let _ = child.wait().expect("Failed to wait on child process");
+    // すべてのプロセスを終了させるためにkillし、終了を待つ
+    for mut child in child_processes {
+        // プロセスをkill
+        child.kill().expect("Failed to kill process");
+
+        // プロセスの終了を待つ
+        let _ = child.wait().expect("Failed to wait on child process");
+    }
+
+    println!("All processes have been killed and completed.");
 }

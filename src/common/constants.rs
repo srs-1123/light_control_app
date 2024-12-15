@@ -7,6 +7,7 @@ pub const SOCKET_PATH: &str = "/tmp/light_control.sock";
 
 // file path
 pub const LIGHT_CONTROL_PATH: &str = "./light_control";
+pub const SENSOR_CONTROL_PATH: &str = "./sensor_control";
 pub const CONFIG_FILE_PATH: &str = "config.json";
 
 #[derive(Debug)]

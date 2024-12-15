@@ -4,7 +4,7 @@ use std::sync::{mpsc, Arc, Mutex};
 use std::sync::mpsc::Sender;
 use std::thread;
 use std::os::unix::net::UnixListener;
-use std::io::{Read, Write};
+use std::io::{Read};
 
 // 自分が作ったクレート
 use crate::common::constants::AppError;

@@ -8,11 +8,16 @@ openssl = { version = "0.10.35", features = ["vendored"] }
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+rppal = "0.12"  # GPIO制御のためのライブラリ
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
 
 [[bin]]
 name = "light_control"
 path = "src/app/light_control/main.rs"
 
 [[bin]]
-name = "main"
-path = "src/main.rs"
+name = "sensor_control"
+path = "src/app/sensor_control/main.rs"

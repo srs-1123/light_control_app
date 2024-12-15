@@ -32,6 +32,7 @@ jobs:
         mkdir -p artifacts
         cp target/aarch64-unknown-linux-gnu/release/main artifacts/
         cp target/aarch64-unknown-linux-gnu/release/light_control artifacts/
+        cp target/aarch64-unknown-linux-gnu/release/sensor_control artifacts/
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
