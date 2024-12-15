@@ -6,6 +6,9 @@ use std::thread;
 use std::os::unix::net::UnixListener;
 use std::io::{Read, Write};
 
+// 自分が作ったクレート
+use crate::common::constants::AppError;
+
 #[derive(Debug)]
 pub enum LightControlError {
     SocketError(std::io::Error),
@@ -42,9 +45,9 @@ impl LightControl {
         }
     }
 
-    fn listen_socket(&self) -> Result<(), LightControlError> {
+    fn listen_socket(&self) -> Result<(), AppError> {
         let _ = std::fs::remove_file(&self.socket_path);
-        let listener = UnixListener::bind(&self.socket_path).map_err(LightControlError::SocketError)?;
+        let listener = UnixListener::bind(&self.socket_path).map_err(AppError::SocketError)?;
 
         for stream in listener.incoming() {
             match stream {
@@ -54,9 +57,10 @@ impl LightControl {
                         Ok(size) => {
                             if size > 0 {
                                 let message = buffer[0]; // 最初のバイトをu8として送信
+                                // TODO: メッセージがプロセス終了なら、stopメソッドを実行
                                 println!("Received message: {}", message);
                                 // メッセージを送信
-                                self.sender.send(message).map_err(|e| LightControlError::MessageError(e.to_string()))?;
+                                self.sender.send(message).map_err(|e| AppError::MessageError(e.to_string()))?;
                             }
                         }
                         Err(e) => eprintln!("Failed to read from socket: {:?}", e),
